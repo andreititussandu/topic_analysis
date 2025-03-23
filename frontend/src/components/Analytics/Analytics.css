@@ -1,0 +1,37 @@
+.analytics-container {
+  margin-top: 20px;
+}
+
+.analytics-container .MuiCard-root {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.analytics-container .MuiCardContent-root {
+  padding: 16px 24px;
+}
+
+.analytics-container .recharts-wrapper {
+  margin: 0 auto;
+}
+
+.analytics-container .recharts-legend-item {
+  padding-right: 10px;
+}
+
+.analytics-container .recharts-responsive-container {
+  margin-top: 16px;
+}
+
+.analytics-container .recharts-tooltip-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-container .MuiTypography-h6 {
+  font-weight: 600;
+  color: #3f51b5;
+  margin-bottom: 16px;
+}

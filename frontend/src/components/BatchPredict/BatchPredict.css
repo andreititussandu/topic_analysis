@@ -1,0 +1,20 @@
+.batch-predict-container {
+  margin-top: 20px;
+}
+
+.batch-predict-container .MuiAccordion-root {
+  margin-bottom: 10px;
+}
+
+.batch-predict-container .MuiChip-root {
+  margin-left: 10px;
+}
+
+.batch-predict-container .MuiListItem-root {
+  padding: 8px 16px;
+}
+
+.batch-predict-container .MuiAccordionSummary-content h6 {
+  display: flex;
+  align-items: center;
+}

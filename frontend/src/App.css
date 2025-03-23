@@ -1,0 +1,26 @@
+.App {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* Smooth transitions between tabs */
+.MuiTabs-root {
+  transition: all 0.3s ease;
+}
+
+/* Tab indicator animation */
+.MuiTabs-indicator {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tab hover effect */
+.MuiTab-root:hover {
+  opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .App {
+    padding: 0;
+  }
+}

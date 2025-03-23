@@ -1,0 +1,45 @@
+.history-container {
+  margin-top: 20px;
+}
+
+.history-container .MuiCard-root {
+  transition: all 0.3s ease;
+}
+
+.history-container .MuiTableContainer-root {
+  box-shadow: none;
+}
+
+.history-container .MuiTableRow-root:hover {
+  background-color: rgba(63, 81, 181, 0.04);
+}
+
+.history-container .MuiTableCell-head {
+  background-color: rgba(63, 81, 181, 0.08);
+  font-weight: 600;
+}
+
+.history-container .MuiChip-root {
+  transition: all 0.2s ease;
+}
+
+.history-container .MuiChip-root:hover {
+  transform: scale(1.05);
+}
+
+.history-container .MuiIconButton-root {
+  transition: all 0.2s ease;
+}
+
+.history-container .MuiIconButton-root:hover {
+  background-color: rgba(63, 81, 181, 0.1);
+  transform: scale(1.1);
+}
+
+.history-container .MuiTablePagination-root {
+  margin-top: 16px;
+}
+
+.history-container .MuiTextField-root .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
