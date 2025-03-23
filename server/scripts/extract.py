@@ -31,6 +31,6 @@ def extract_training_data(input_file, output_file):
         print(f"An error occurred: {e}")
 
 if __name__ == '__main__':
-    input_file = '../data/labelled_newscatcher_dataset_test.csv'
-    output_file = '../data/training_data.csv'
+    input_file = '../../data/labelled_newscatcher_dataset_test.csv'
+    output_file = '../../data/training_data.csv'
     extract_training_data(input_file, output_file)
