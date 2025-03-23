@@ -1,0 +1,9 @@
+pandas~=2.2.2
+requests~=2.32.3
+nltk~=3.8.1
+spacy~=3.7.5
+Flask~=3.0.3
+scikit-learn~=1.5.1
+beautifulsoup4~=4.12.3
+pymongo~=4.8.0
+gunicorn~=22.0.0
