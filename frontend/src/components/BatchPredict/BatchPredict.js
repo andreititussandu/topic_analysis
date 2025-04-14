@@ -38,7 +38,7 @@ const BatchPredict = ({ userId }) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       if (selectedFile.type !== 'text/plain') {
-        setError('Please upload a text file (.txt)');
+        setError('Vă rugăm să încărcați un fișier text (.txt)');
         setFile(null);
         setFileName('');
         return;
@@ -52,7 +52,7 @@ const BatchPredict = ({ userId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError('Please select a file first');
+      setError('Vă rugăm să selectați mai întâi un fișier');
       return;
     }
 
@@ -69,11 +69,11 @@ const BatchPredict = ({ userId }) => {
     } catch (err) {
       console.error('Error in batch prediction:', err);
       if (err.response) {
-        setError(`Server error: ${err.response.data}`);
+        setError(`Eroare de server: ${err.response.data}`);
       } else if (err.request) {
-        setError('No response received from the server. Please check your network connection and try again.');
+        setError('Nu s-a primit niciun răspuns de la server. Vă rugăm să verificați conexiunea la rețea și să încercați din nou.');
       } else {
-        setError(`Error in request: ${err.message}`);
+        setError(`Eroare în cerere: ${err.message}`);
       }
     } finally {
       setLoading(false);
@@ -87,26 +87,26 @@ const BatchPredict = ({ userId }) => {
           <Card>
             <CardContent>
               <Typography variant="h4" component="h2" gutterBottom>
-                Batch Predict Topics
+                Predicție în Lot a Topicurilor
               </Typography>
               
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography variant="body1" sx={{ mr: 1 }}>
-                  Process multiple URLs at once by uploading a text file
+                  Procesează mai multe URL-uri simultan prin încărcarea unui fișier text
                 </Typography>
-                <Tooltip title="Create a simple text file with one URL per line" arrow>
+                <Tooltip title="Creați un fișier text simplu cu un URL pe fiecare linie" arrow>
                   <InfoIcon color="primary" fontSize="small" />
                 </Tooltip>
               </Box>
               
               <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'rgba(0, 0, 0, 0.02)' }}>
                 <Typography variant="body2" color="textSecondary">
-                  <strong>How it works:</strong>
+                  <strong>Cum funcționează:</strong>
                   <ol style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                    <li>Create a text file (.txt) with one URL per line</li>
-                    <li>Upload the file using the button below</li>
-                    <li>The system will process each URL and group them by topic</li>
-                    <li>Results are automatically saved to your history</li>
+                    <li>Creați un fișier text (.txt) cu un URL pe fiecare linie</li>
+                    <li>Încărcați fișierul folosind butonul de mai jos</li>
+                    <li>Sistemul va procesa fiecare URL și le va grupa după topic</li>
+                    <li>Rezultatele sunt salvate automat în istoricul dumneavoastră</li>
                   </ol>
                 </Typography>
               </Paper>
@@ -127,12 +127,12 @@ const BatchPredict = ({ userId }) => {
                       startIcon={<UploadFileIcon />}
                       sx={{ mb: 1 }}
                     >
-                      Select File
+                      Selectează Fișier
                     </Button>
                   </label>
                   {fileName && (
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      Selected file: <strong>{fileName}</strong>
+                      Fișier selectat: <strong>{fileName}</strong>
                     </Typography>
                   )}
                 </Box>
@@ -144,7 +144,7 @@ const BatchPredict = ({ userId }) => {
                   disabled={loading || !file}
                   fullWidth
                 >
-                  {loading ? <CircularProgress size={24} /> : 'Process URLs'}
+                  {loading ? <CircularProgress size={24} /> : 'Procesează URL-uri'}
                 </Button>
               </form>
               
@@ -162,7 +162,7 @@ const BatchPredict = ({ userId }) => {
             <Card>
               <CardContent>
                 <Typography variant="h5" component="h3" gutterBottom>
-                  Results Grouped by Topic
+                  Rezultate Grupate după Topic
                 </Typography>
                 
                 {Object.entries(groupedResults).map(([topic, urls]) => (
@@ -204,7 +204,7 @@ const BatchPredict = ({ userId }) => {
             <Card>
               <CardContent>
                 <Typography variant="h5" component="h3" gutterBottom>
-                  All Results
+                  Toate Rezultatele
                 </Typography>
                 <Paper variant="outlined" sx={{ maxHeight: 400, overflow: 'auto' }}>
                   <List dense>
@@ -215,8 +215,8 @@ const BatchPredict = ({ userId }) => {
                             primary={result.url}
                             secondary={
                               result.error 
-                                ? `Error: ${result.error}` 
-                                : `Topic: ${result.predicted_topic} ${result.from_cache ? '(cached)' : ''}`
+                                ? `Eroare: ${result.error}` 
+                                : `Topic: ${result.predicted_topic} ${result.from_cache ? '(din cache)' : ''}`
                             }
                             primaryTypographyProps={{ 
                               style: { 

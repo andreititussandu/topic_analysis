@@ -34,6 +34,7 @@ const Analytics = ({ userId }) => {
 
   useEffect(() => {
     fetchAnalytics();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const fetchAnalytics = async () => {
@@ -45,7 +46,7 @@ const Analytics = ({ userId }) => {
       setAnalytics(data);
     } catch (err) {
       console.error('Error fetching analytics:', err);
-      setError('Failed to load analytics. Please try again later.');
+      setError('Nu s-a putut încărca analiza. Vă rugăm să încercați mai târziu.');
     } finally {
       setLoading(false);
     }
@@ -54,10 +55,13 @@ const Analytics = ({ userId }) => {
   // Format data for charts
   const formatTopicDistribution = () => {
     if (!analytics || !analytics.topic_distribution) return [];
+
+    const total = analytics.topic_distribution.reduce((sum, item) => sum + item.count, 0);
     
     return analytics.topic_distribution.map(item => ({
       name: item._id,
-      value: item.count
+      value: item.count,
+      percentage: ((item.count / total) * 100).toFixed(0)
     }));
   };
 
@@ -70,23 +74,8 @@ const Analytics = ({ userId }) => {
     }));
   };
 
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central"
-      >
-        {`${name} (${(percent * 100).toFixed(0)}%)`}
-      </text>
-    );
+  const renderCustomizedLabel = () => {
+    return null;
   };
 
   return (
@@ -94,7 +83,7 @@ const Analytics = ({ userId }) => {
       <Card>
         <CardContent>
           <Typography variant="h4" component="h2" gutterBottom>
-            Analytics Dashboard
+            Tablou de Bord Analitic
           </Typography>
           
           {loading ? (
@@ -107,14 +96,14 @@ const Analytics = ({ userId }) => {
             </Alert>
           ) : !analytics ? (
             <Alert severity="info" sx={{ mt: 2 }}>
-              No analytics data available yet. Try predicting some topics first!
+              Nu există încă date analitice disponibile. Încercați mai întâi să preziceți câteva topicuri!
             </Alert>
           ) : (
             <Grid container spacing={4}>
               {/* Topic Distribution */}
               <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom>
-                  Topic Distribution
+                  Distribuția Topicurilor
                 </Typography>
                 <Box sx={{ height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -124,7 +113,7 @@ const Analytics = ({ userId }) => {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={renderCustomizedLabel}
+                        label={null}
                         outerRadius={100}
                         fill="#8884d8"
                         dataKey="value"
@@ -134,7 +123,12 @@ const Analytics = ({ userId }) => {
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend />
+                      <Legend 
+                        formatter={(value, entry, index) => {
+                          const items = formatTopicDistribution();
+                          return items[index] ? `${value} (${items[index].percentage}%)` : value;
+                        }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </Box>
@@ -143,7 +137,7 @@ const Analytics = ({ userId }) => {
               {/* Daily Activity */}
               <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom>
-                  Daily Activity (Last 7 Days)
+                  Activitate Zilnică (Ultimele 7 Zile)
                 </Typography>
                 <Box sx={{ height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%">

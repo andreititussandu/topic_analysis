@@ -1,5 +1,5 @@
 """
-Model training utilities for the topic analysis application
+Utilități pentru antrenarea modelului în aplicația de analiză a topicurilor
 """
 import pandas as pd
 import os
@@ -14,78 +14,78 @@ from sklearn.naive_bayes import MultinomialNB
 from .web_scraper import scrape_text_from_url
 from .database import Database
 
-# Set up logging
+# Configurare logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize database
+# Inițializare bază de date
 db = Database()
 
 def read_csv(file_path):
     """
-    Read CSV file
+    Citește fișier CSV
     
     Args:
-        file_path: Path to CSV file
+        file_path: Calea către fișierul CSV
         
     Returns:
-        Pandas DataFrame or None
+        Pandas DataFrame sau None
     """
     try:
         df = pd.read_csv(file_path)
-        logger.info("CSV read successfully")
+        logger.info("CSV citit cu succes")
         return df
     except Exception as e:
-        logger.error(f"Error reading CSV file: {e}")
+        logger.error(f"Eroare la citirea fișierului CSV: {e}")
         return None
 
 def validate_columns(df, required_columns):
     """
-    Validate required columns in DataFrame
+    Validează coloanele necesare în DataFrame
     
     Args:
         df: Pandas DataFrame
-        required_columns: List of required column names
+        required_columns: Lista numelor coloanelor necesare
         
     Returns:
-        True if all required columns exist, False otherwise
+        True dacă toate coloanele necesare există, False în caz contrar
     """
     for column in required_columns:
         if column not in df.columns:
-            logger.error(f"Error: Required column '{column}' not found in CSV")
+            logger.error(f"Eroare: Coloana necesară '{column}' nu a fost găsită în CSV")
             return False
     return True
 
 def scrape_documents(links):
     """
-    Scrape text from URLs
+    Extrage text din URL-uri
     
     Args:
-        links: List of URLs
+        links: Lista de URL-uri
         
     Returns:
-        List of scraped text documents
+        Lista de documente text extrase
     """
     documents = []
     for link in links:
         try:
-            logger.info(f"Scraping text from URL: {link}")
+            logger.info(f"Extragere text din URL: {link}")
             text = scrape_text_from_url(link)
             documents.append(text)
         except Exception as e:
-            logger.error(f"Failed to scrape {link}: {e}")
+            logger.error(f"Eșec la extragerea {link}: {e}")
             documents.append('')
     return documents
 
 def vectorize_documents(documents):
     """
-    Vectorize documents
+    Vectorizează documente
     
     Args:
-        documents: List of text documents
+        documents: Lista de documente text
         
     Returns:
-        Tuple of (vectorizer, document-term matrix)
+        Tuplu de (vectorizer, matrice document-termen)
     """
     vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english', ngram_range=(1, 2))
     dtm = vectorizer.fit_transform(documents)
@@ -93,14 +93,14 @@ def vectorize_documents(documents):
 
 def apply_lda(dtm, n_components=7):
     """
-    Apply Latent Dirichlet Allocation
+    Aplică Latent Dirichlet Allocation
     
     Args:
-        dtm: Document-term matrix
-        n_components: Number of topics
+        dtm: Matricea document-termen
+        n_components: Numărul de topicuri
         
     Returns:
-        LDA model
+        Modelul LDA
     """
     lda = LatentDirichletAllocation(n_components=n_components, random_state=42)
     lda.fit(dtm)
@@ -108,14 +108,14 @@ def apply_lda(dtm, n_components=7):
 
 def train_predictive_model(dtm, topics):
     """
-    Train Naive Bayes model
+    Antrenează modelul Naive Bayes
     
     Args:
-        dtm: Document-term matrix
-        topics: List of topics
+        dtm: Matricea document-termen
+        topics: Lista de topicuri
         
     Returns:
-        Trained model
+        Modelul antrenat
     """
     nb = MultinomialNB()
     nb.fit(dtm, topics)
@@ -123,10 +123,10 @@ def train_predictive_model(dtm, topics):
 
 def save_model_and_vectorizer(model, vectorizer):
     """
-    Save model and vectorizer to disk
+    Salvează modelul și vectorizatorul pe disc
     
     Args:
-        model: Trained model
+        model: Modelul antrenat
         vectorizer: CountVectorizer
     """
     os.makedirs('database', exist_ok=True)
@@ -137,14 +137,14 @@ def save_model_and_vectorizer(model, vectorizer):
 
 def process_csv(file_path):
     """
-    Process CSV file for model training
+    Procesează fișierul CSV pentru antrenarea modelului
     
     Args:
-        file_path: Path to CSV file
+        file_path: Calea către fișierul CSV
     """
     df = read_csv(file_path)
     if df is None or not validate_columns(df, ['topic', 'link']):
-        raise ValueError("Invalid CSV format")
+        raise ValueError("Format CSV invalid")
 
     topics = df['topic'].tolist()
     links = df['link'].tolist()
@@ -156,14 +156,14 @@ def process_csv(file_path):
     db.store_training_data(links, topics, documents, lda, vectorizer)
     nb_model = train_predictive_model(dtm, topics)
     save_model_and_vectorizer(nb_model, vectorizer)
-    logger.info("CSV processed and data stored in MongoDB")
+    logger.info("CSV procesat și datele stocate în MongoDB")
 
 def backup_models():
     """
-    Create backup of current models
+    Creează backup al modelelor curente
     
     Returns:
-        Backup timestamp or None if backup failed
+        Timestamp-ul backup-ului sau None dacă backup-ul a eșuat
     """
     backup_time = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     try:
@@ -172,64 +172,64 @@ def backup_models():
             shutil.copy('models/vectorizer.pkl', f'database/vectorizer_{backup_time}.pkl')
         if os.path.exists('models/model.pkl'):
             shutil.copy('models/model.pkl', f'database/model_{backup_time}.pkl')
-        logger.info(f"Created model backup with timestamp {backup_time}")
+        logger.info(f"S-a creat backup-ul modelului cu timestamp-ul {backup_time}")
         return backup_time
     except Exception as e:
-        logger.warning(f"Could not create model backup: {str(e)}")
+        logger.warning(f"Nu s-a putut crea backup-ul modelului: {str(e)}")
         return None
 
 def restore_models(backup_time):
     """
-    Restore models from backup
+    Restaurează modelele din backup
     
     Args:
-        backup_time: Backup timestamp
+        backup_time: Timestamp-ul backup-ului
         
     Returns:
-        True if restore succeeded, False otherwise
+        True dacă restaurarea a reușit, False în caz contrar
     """
     try:
         if os.path.exists(f'database/vectorizer_{backup_time}.pkl') and os.path.exists(f'database/model_{backup_time}.pkl'):
             shutil.copy(f'database/vectorizer_{backup_time}.pkl', 'models/vectorizer.pkl')
             shutil.copy(f'database/model_{backup_time}.pkl', 'models/model.pkl')
-            logger.info("Restored model from backup")
+            logger.info("Model restaurat din backup")
             return True
     except Exception as e:
-        logger.error(f"Error restoring model from backup: {str(e)}")
+        logger.error(f"Eroare la restaurarea modelului din backup: {str(e)}")
     return False
 
 def retrain_model(urls, user_id):
     """
-    Retrain model with new data
+    Reantrenează modelul cu date noi
     
     Args:
-        urls: List of URLs to use for retraining
-        user_id: User ID
+        urls: Lista de URL-uri pentru reantrenare
+        user_id: ID-ul utilizatorului
         
     Returns:
-        Tuple of (success, message)
+        Tuplu de (succes, mesaj)
     """
-    # Process each URL to get content
+    # Procesează fiecare URL pentru a obține conținutul
     contents = []
     topics = []
     
     for url in urls:
-        # Check if we have this URL in history with a prediction
+        # Verifică dacă avem acest URL în istoric cu o predicție
         history_entry = db.history_collection.find_one({"url": url, "user_id": user_id})
         if not history_entry:
             continue
             
-        # Get content from cache or scrape
+        # Obține conținutul din cache sau prin extragere
         cached_result = db.check_cache(url)
         if cached_result and 'text' in cached_result:
             content = cached_result['text']
         else:
             try:
                 content = scrape_text_from_url(url)
-                # Save to cache for future use
+                # Salvează în cache pentru utilizare ulterioară
                 db.save_to_cache(url, content, history_entry.get('prediction', ''))
             except Exception as e:
-                logger.error(f"Error scraping URL {url}: {str(e)}")
+                logger.error(f"Eroare la extragerea URL-ului {url}: {str(e)}")
                 continue
         
         if content:
@@ -237,32 +237,32 @@ def retrain_model(urls, user_id):
             topics.append(history_entry.get('prediction', ''))
     
     if not contents:
-        return False, "Could not retrieve content from any of the provided URLs"
+        return False, "Nu s-a putut recupera conținut din niciunul dintre URL-urile furnizate"
     
-    # Create backup of current model
+    # Creează backup al modelului curent
     backup_time = backup_models()
     
     try:
-        # Load current models
+        # Încarcă modelele curente
         vectorizer = joblib.load('models/vectorizer.pkl')
         model = joblib.load('models/model.pkl')
         
-        # Vectorize the new content
+        # Vectorizează noul conținut
         X = vectorizer.transform(contents)
         
-        # Retrain the classifier with new data
+        # Reantrenează clasificatorul cu noile date
         model.partial_fit(X, topics, classes=np.unique(topics))
         
-        # Save updated models
+        # Salvează modelele actualizate
         joblib.dump(vectorizer, 'models/vectorizer.pkl')
         joblib.dump(model, 'models/model.pkl')
         
-        return True, f"Model successfully retrained with {len(contents)} documents"
+        return True, f"Model reantrenat cu succes cu {len(contents)} documente"
     except Exception as e:
-        logger.error(f"Error retraining model: {str(e)}")
+        logger.error(f"Eroare la reantrenarea modelului: {str(e)}")
         
-        # Restore from backup if available
+        # Restaurează din backup dacă este disponibil
         if backup_time and restore_models(backup_time):
-            return False, f"Error retraining model: {str(e)} (restored from backup)"
+            return False, f"Eroare la reantrenarea modelului: {str(e)} (restaurat din backup)"
         else:
-            return False, f"Error retraining model: {str(e)} (could not restore from backup)"
+            return False, f"Eroare la reantrenarea modelului: {str(e)} (nu s-a putut restaura din backup)"

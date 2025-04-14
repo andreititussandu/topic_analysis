@@ -1,5 +1,5 @@
 """
-Database operations for the topic analysis application
+Operațiuni de bază de date pentru aplicația de analiză a topicurilor
 """
 import datetime
 from pymongo import MongoClient
@@ -8,10 +8,10 @@ import os
 class Database:
     def __init__(self, mongo_uri=None):
         """
-        Initialize database connection
+        Inițializează conexiunea la baza de date
         
         Args:
-            mongo_uri: MongoDB connection string
+            mongo_uri: String de conexiune MongoDB
         """
         self.mongo_uri = mongo_uri or os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
         self.client = MongoClient(self.mongo_uri)
@@ -20,7 +20,7 @@ class Database:
         self.history_collection = self.db['history']
         self.cache_collection = self.db['cache']
         
-        # Create indexes for better performance
+        # Creează indexuri pentru performanță mai bună
         self.history_collection.create_index([('url', 1)])
         self.history_collection.create_index([('user_id', 1)])
         self.history_collection.create_index([('timestamp', -1)])
@@ -31,17 +31,17 @@ class Database:
     
     def check_cache(self, url):
         """
-        Check if URL is in cache
+        Verifică dacă URL-ul este în cache
         
         Args:
-            url: URL to check
+            url: URL-ul de verificat
             
         Returns:
-            Cached result or None
+            Rezultatul din cache sau None
         """
         cached_result = self.cache_collection.find_one({'url': url})
         if cached_result:
-            # Check if cache is still valid (24 hours)
+            # Verifică dacă cache-ul este încă valid (24 ore)
             cache_time = cached_result.get('timestamp', datetime.datetime.min)
             if (datetime.datetime.now() - cache_time).total_seconds() < 86400:  # 24 hours in seconds
                 return cached_result

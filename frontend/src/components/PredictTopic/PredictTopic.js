@@ -74,16 +74,16 @@ const PredictTopic = ({ userId }) => {
       console.error('Error in prediction:', err);
       if (err.response) {
         if (err.response.status === 400) {
-          setError('Invalid URL provided. Please check the URL and try again.');
+          setError('URL invalid. Vă rugăm să verificați URL-ul și să încercați din nou.');
         } else if (err.response.status === 500) {
-          setError('Server error occurred while processing the URL. Please try again later.');
+          setError('A apărut o eroare de server în timpul procesării URL-ului. Vă rugăm să încercați mai târziu.');
         } else {
-          setError(`Unexpected error: ${err.response.data}`);
+          setError(`Eroare neașteptată: ${err.response.data}`);
         }
       } else if (err.request) {
-        setError('No response received from the server. Please check your network connection and try again.');
+        setError('Nu s-a primit niciun răspuns de la server. Vă rugăm să verificați conexiunea la rețea și să încercați din nou.');
       } else {
-        setError(`Error in request: ${err.message}`);
+        setError(`Eroare în cerere: ${err.message}`);
       }
     } finally {
       setLoading(false);
@@ -92,17 +92,17 @@ const PredictTopic = ({ userId }) => {
 
   const handleDownloadContent = async () => {
     if (!url) {
-      showSnackbar('Please enter a URL first', 'warning');
+      showSnackbar('Vă rugăm să introduceți un URL mai întâi', 'warning');
       return;
     }
 
     setDownloadLoading(true);
     try {
       await saveContent(url);
-      showSnackbar('Content downloaded successfully', 'success');
+      showSnackbar('Conținut descărcat cu succes', 'success');
     } catch (err) {
       console.error('Error downloading content:', err);
-      showSnackbar('Failed to download content. Please try again.', 'error');
+      showSnackbar('Descărcarea conținutului a eșuat. Vă rugăm să încercați din nou.', 'error');
     } finally {
       setDownloadLoading(false);
     }
@@ -158,7 +158,7 @@ const PredictTopic = ({ userId }) => {
                   color: 'primary.main'
                 }}
               >
-                Predict Topic from URL
+                Analiză automată a conținutului web
               </Typography>
               
               <Paper
@@ -172,15 +172,14 @@ const PredictTopic = ({ userId }) => {
                 }}
               >
                 <Typography variant="body2" color="textSecondary">
-                  Enter any webpage URL to analyze its content and predict the topic. 
-                  Our AI model will process the text and determine the most likely subject matter.
+                  Introduceți un URL pentru a analiza conținutul și a determina automat tema principală a paginii.
                 </Typography>
               </Paper>
               
               <form onSubmit={handleSubmit}>
                 <TextField
                   fullWidth
-                  label="Enter URL"
+                  label="Introduceți URL"
                   variant="outlined"
                   value={url}
                   onChange={handleInputChange}
@@ -218,7 +217,7 @@ const PredictTopic = ({ userId }) => {
                       flex: 3
                     }}
                   >
-                    {loading ? <CircularProgress size={24} /> : 'Predict Topic'}
+                    {loading ? <CircularProgress size={24} /> : 'Prezice Topic'}
                   </Button>
                   <Button
                     color="secondary"
@@ -231,7 +230,7 @@ const PredictTopic = ({ userId }) => {
                     }}
                     startIcon={downloadLoading ? <CircularProgress size={20} /> : <DownloadIcon />}
                   >
-                    {downloadLoading ? '' : 'Download'}
+                    {downloadLoading ? '' : 'Descarcă'}
                   </Button>
                 </ButtonGroup>
               </form>
@@ -249,7 +248,7 @@ const PredictTopic = ({ userId }) => {
                       }}
                     >
                       <Typography variant="h6" gutterBottom>
-                        Predicted Topic:
+                        Topic Prezis:
                       </Typography>
                       <Box 
                         sx={{ 
@@ -270,7 +269,7 @@ const PredictTopic = ({ userId }) => {
                         />
                         {fromCache && (
                           <Chip
-                            label="Cached Result"
+                            label="Rezultat din Cache"
                             color="secondary"
                             size="small"
                             variant="outlined"
@@ -310,14 +309,14 @@ const PredictTopic = ({ userId }) => {
                   gutterBottom
                   sx={{ fontWeight: 600 }}
                 >
-                  Word Cloud
+                  Nor de Cuvinte
                 </Typography>
                 <Typography 
                   variant="body2" 
                   color="textSecondary"
                   sx={{ mb: 2 }}
                 >
-                  Visual representation of the most frequent words in the content
+                  Reprezentare vizuală a celor mai frecvente cuvinte din conținut
                 </Typography>
                 <Box 
                   sx={{ 

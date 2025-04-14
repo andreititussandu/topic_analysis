@@ -51,6 +51,7 @@ const History = ({ userId }) => {
 
   useEffect(() => {
     fetchHistory();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const fetchHistory = async () => {
@@ -62,7 +63,7 @@ const History = ({ userId }) => {
       setHistory(data);
     } catch (err) {
       console.error('Error fetching history:', err);
-      setError('Failed to load history. Please try again later.');
+      setError('Nu s-a putut încărca istoricul. Vă rugăm să încercați mai târziu.');
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ const History = ({ userId }) => {
 
   const handleOpenRetrainDialog = () => {
     if (selectedUrls.length === 0) {
-      showSnackbar('Please select at least one URL for retraining', 'warning');
+      showSnackbar('Vă rugăm să selectați cel puțin un URL pentru reantrenare', 'warning');
       return;
     }
     setDialogOpen(true);
@@ -123,11 +124,11 @@ const History = ({ userId }) => {
         showSnackbar(result.message, 'success');
         setSelectedUrls([]);
       } else {
-        showSnackbar(result.message || 'Error retraining model', 'error');
+        showSnackbar(result.message || 'Eroare la reantrenarea modelului', 'error');
       }
     } catch (err) {
       console.error('Error retraining model:', err);
-      showSnackbar('Failed to retrain model. Please try again later.', 'error');
+      showSnackbar('Nu s-a putut reantrena modelul. Vă rugăm să încercați mai târziu.', 'error');
     } finally {
       setRetrainingLoading(false);
       setDialogOpen(false);
@@ -170,7 +171,7 @@ const History = ({ userId }) => {
               color: 'primary.main'
             }}
           >
-            Prediction History
+            Istoric Predicții
           </Typography>
           
           <Paper
@@ -184,7 +185,7 @@ const History = ({ userId }) => {
             }}
           >
             <Typography variant="body2" color="textSecondary">
-              View your past URL predictions and results. Select URLs to retrain the model and improve prediction accuracy.
+              Vizualizați predicțiile și rezultatele URL-urilor anterioare. Selectați URL-uri pentru a reantrena modelul și a îmbunătăți acuratețea predicțiilor.
             </Typography>
           </Paper>
           
@@ -200,7 +201,7 @@ const History = ({ userId }) => {
           >
             <TextField
               variant="outlined"
-              placeholder="Search by URL or topic..."
+              placeholder="Caută după URL sau topic..."
               value={searchTerm}
               onChange={handleSearchChange}
               sx={{ flexGrow: 1 }}
@@ -219,7 +220,7 @@ const History = ({ userId }) => {
               onClick={handleOpenRetrainDialog}
               disabled={selectedUrls.length === 0}
             >
-              Retrain Model
+              Reantrenează Model
             </Button>
           </Box>
           
@@ -233,7 +234,7 @@ const History = ({ userId }) => {
             </Alert>
           ) : history.length === 0 ? (
             <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
-              No prediction history available yet. Try predicting some topics first!
+              Nu există încă istoric de predicții. Încercați mai întâi să preziceți câteva topicuri!
             </Alert>
           ) : (
             <>
@@ -242,7 +243,7 @@ const History = ({ userId }) => {
                   <TableHead>
                     <TableRow>
                       <TableCell padding="checkbox">
-                        <Tooltip title="Select for retraining">
+                        <Tooltip title="Selectați pentru reantrenare">
                           <span>
                             <Checkbox 
                               indeterminate={selectedUrls.length > 0 && selectedUrls.length < filteredHistory.length}
@@ -260,8 +261,8 @@ const History = ({ userId }) => {
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>URL</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Topic</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Dată</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Acțiune</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -295,7 +296,7 @@ const History = ({ userId }) => {
                           </TableCell>
                           <TableCell>{formatDate(item.timestamp)}</TableCell>
                           <TableCell>
-                            <Tooltip title="Open URL">
+                            <Tooltip title="Deschide URL">
                               <IconButton 
                                 size="small" 
                                 color="primary"
@@ -336,14 +337,14 @@ const History = ({ userId }) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            You are about to retrain the topic prediction model using {selectedUrls.length} selected URLs. 
-            This will improve prediction accuracy for similar content in the future.
-            Do you want to proceed?
+            Sunteți pe cale să reantrenați modelul de predicție a topicurilor folosind {selectedUrls.length} URL-uri selectate. 
+            Acest lucru va îmbunătăți acuratețea predicțiilor pentru conținut similar în viitor.
+            Doriți să continuați?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
-            Cancel
+            Anulează
           </Button>
           <Button 
             onClick={handleRetrainModel} 
@@ -352,7 +353,7 @@ const History = ({ userId }) => {
             disabled={retrainingLoading}
             startIcon={retrainingLoading ? <CircularProgress size={20} /> : null}
           >
-            {retrainingLoading ? 'Retraining...' : 'Retrain'}
+            {retrainingLoading ? 'Se reantrenează...' : 'Reantrenează'}
           </Button>
         </DialogActions>
       </Dialog>

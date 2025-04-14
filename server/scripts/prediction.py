@@ -1,5 +1,5 @@
 """
-Prediction utilities for the topic analysis application
+Utilități de predicție pentru aplicația de analiză a topicurilor
 """
 import logging
 import uuid
@@ -9,31 +9,31 @@ from .web_scraper import scrape_text_from_url
 from .database import Database
 from .text_processing import extract_word_frequencies
 
-# Set up logging
+# Configurare logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize database
+# Inițializare bază de date
 db = Database()
 
 def predict_topic(url, user_id=None):
     """
-    Predict topic for a URL
+    Prezice topicul pentru un URL
     
     Args:
-        url: URL to predict topic for
-        user_id: User ID
+        url: URL-ul pentru care se face predicția
+        user_id: ID-ul utilizatorului
         
     Returns:
-        Dictionary with prediction results
+        Dicționar cu rezultatele predicției
     """
     if not url:
-        return {"error": "No URL provided"}, 400
+        return {"error": "Nu a fost furnizat niciun URL"}, 400
 
     # Check cache first
     cached_result = db.check_cache(url)
     if cached_result:
-        # Save to history for tracking
+        # Salvează în istoric pentru urmărire
         db.save_to_history(url, cached_result.get('text', ''), cached_result.get('prediction', ''), user_id)
         return {
             'predicted_topic': cached_result.get('prediction', ''),
@@ -44,8 +44,8 @@ def predict_topic(url, user_id=None):
     try:
         text = scrape_text_from_url(url)
     except Exception as e:
-        logger.error(f"Failed to scrape {url}: {e}")
-        return {"error": f"Failed to scrape {url}: {e}"}, 500
+        logger.error(f"Eșec la extragerea {url}: {e}")
+        return {"error": f"Eșec la extragerea {url}: {e}"}, 500
 
     try:
         with open('./models/model.pkl', 'rb') as model_file:
@@ -56,7 +56,7 @@ def predict_topic(url, user_id=None):
         text_vectorized = vectorizer.transform([text])
         prediction = model.predict(text_vectorized)[0]
         
-        # Extract word frequencies for word cloud
+        # Extrage frecvențele cuvintelor pentru norul de cuvinte
         word_frequencies = extract_word_frequencies(text)
         
         # Save to cache
@@ -71,25 +71,25 @@ def predict_topic(url, user_id=None):
             'from_cache': False
         }, 200
     except Exception as e:
-        logger.error(f"Error predicting topic: {e}")
-        return {"error": f"Error predicting topic: {e}"}, 500
+        logger.error(f"Eroare la predicția topicului: {e}")
+        return {"error": f"Eroare la predicția topicului: {e}"}, 500
 
 def batch_predict(urls, user_id=None):
     """
-    Predict topics for multiple URLs
+    Prezice topicuri pentru multiple URL-uri
     
     Args:
-        urls: List of URLs to predict topics for
-        user_id: User ID
+        urls: Lista de URL-uri pentru care se fac predicții
+        user_id: ID-ul utilizatorului
         
     Returns:
-        Dictionary with batch prediction results
+        Dicționar cu rezultatele predicțiilor în lot
     """
     if not urls:
-        return {"error": "No URLs provided"}, 400
+        return {"error": "Nu au fost furnizate URL-uri"}, 400
     
     try:
-        # Generate a batch ID for grouping
+        # Generează un ID de lot pentru grupare
         batch_id = str(uuid.uuid4())
         
         results = []
@@ -97,7 +97,7 @@ def batch_predict(urls, user_id=None):
             if not url:
                 continue
                 
-            # Check cache first
+            # Verifică mai întâi cache-ul
             cached_result = db.check_cache(url)
             if cached_result:
                 results.append({
