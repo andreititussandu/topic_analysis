@@ -243,17 +243,16 @@ def retrain_model(urls, user_id):
     backup_time = backup_models()
     
     try:
-        # Încarcă modelele curente
         vectorizer = joblib.load('models/vectorizer.pkl')
         model = joblib.load('models/model.pkl')
-        
-        # Vectorizează noul conținut
+
         X = vectorizer.transform(contents)
+
+        all_classes = model.classes_
         
-        # Reantrenează clasificatorul cu noile date
-        model.partial_fit(X, topics, classes=np.unique(topics))
-        
-        # Salvează modelele actualizate
+        # Reantrenează clasificatorul cu noile date, folosind toate topicurile cunoscute
+        model.partial_fit(X, topics, classes=all_classes)
+
         joblib.dump(vectorizer, 'models/vectorizer.pkl')
         joblib.dump(model, 'models/model.pkl')
         
