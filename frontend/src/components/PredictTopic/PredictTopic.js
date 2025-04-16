@@ -217,7 +217,7 @@ const PredictTopic = ({ userId }) => {
                       flex: 3
                     }}
                   >
-                    {loading ? <CircularProgress size={24} /> : 'Prezice Topic'}
+                    {loading ? <CircularProgress size={24} /> : 'Află topicul'}
                   </Button>
                   <Button
                     color="secondary"

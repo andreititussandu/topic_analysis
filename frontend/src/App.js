@@ -71,10 +71,10 @@ function App() {
                 }
               }}
             >
-              <Tab label="Predict Topic" />
-              <Tab label="Batch Predict" />
-              <Tab label="History" />
-              <Tab label="Analytics" />
+              <Tab label="Identificare subiect" />
+              <Tab label="Procesare în bloc" />
+              <Tab label="Istoric" />
+              <Tab label="Analiză" />
             </Tabs>
           </AppBar>
 
