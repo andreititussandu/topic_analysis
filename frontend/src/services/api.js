@@ -93,3 +93,24 @@ export const getAnalytics = async (userId) => {
     throw error;
   }
 };
+
+/**
+ * Șterge o intrare din istoricul predicțiilor
+ * 
+ * @param {string} entryId - ID-ul intrării de șters
+ * @param {string} userId - ID-ul utilizatorului
+ * @returns {Promise<Object>} - Răspunsul de la server
+ */
+export const deleteHistoryEntry = async (entryId, userId) => {
+  try {
+    const params = new URLSearchParams();
+    if (userId) {
+      params.append('user_id', userId);
+    }
+    
+    const response = await axios.delete(`${API_URL}/history/${entryId}?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

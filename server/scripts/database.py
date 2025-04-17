@@ -104,10 +104,14 @@ class Database:
         if user_id:
             query['user_id'] = user_id
         
-        history = list(self.history_collection.find(
-            query, 
-            {'_id': 0, 'url': 1, 'prediction': 1, 'timestamp': 1, 'batch_id': 1}
-        ).sort('timestamp', -1).limit(limit))
+        # Convertim ObjectId la string pentru a putea fi serializat în JSON
+        history = []
+        cursor = self.history_collection.find(query).sort('timestamp', -1).limit(limit)
+        
+        for doc in cursor:
+            # Convertim ObjectId la string
+            doc['_id'] = str(doc['_id'])
+            history.append(doc)
         
         # Convert timestamp to string for JSON serialization
         for item in history:
@@ -128,39 +132,65 @@ class Database:
             Dictionary with analytics data
         """
         query = {}
-        if user_id:
-            query['user_id'] = user_id
         
-        # Get topic distribution
-        pipeline = [
-            {'$match': query},
+        # Filtrare după user_id dacă este specificat
+        if user_id:
+            pipeline.append({'$match': {'user_id': user_id}})
+        
+        # Pipeline pentru distribuția topicurilor
+        topic_pipeline = pipeline + [
             {'$group': {'_id': '$prediction', 'count': {'$sum': 1}}},
             {'$sort': {'count': -1}}
         ]
         
-        topic_distribution = list(self.history_collection.aggregate(pipeline))
-        
-        # Get recent activity
-        days_ago = datetime.datetime.now() - datetime.timedelta(days=days)
-        
-        daily_activity_query = query.copy()
-        daily_activity_query['timestamp'] = {'$gte': days_ago}
-        
-        daily_activity_pipeline = [
-            {'$match': daily_activity_query},
-            {'$group': {
-                '_id': {'$dateToString': {'format': '%Y-%m-%d', 'date': '$timestamp'}},
-                'count': {'$sum': 1}
+        # Pipeline pentru activitatea zilnică
+        daily_pipeline = pipeline + [
+            {'$project': {
+                'date': {'$dateToString': {'format': '%Y-%m-%d', 'date': '$timestamp'}},
             }},
-            {'$sort': {'_id': 1}}
+            {'$group': {'_id': '$date', 'count': {'$sum': 1}}},
+            {'$sort': {'_id': -1}},
+            {'$limit': 7}
         ]
         
-        daily_activity = list(self.history_collection.aggregate(daily_activity_pipeline))
+        # Execută agregările
+        topic_distribution = list(self.history_collection.aggregate(topic_pipeline))
+        daily_activity = list(self.history_collection.aggregate(daily_pipeline))
         
         return {
             'topic_distribution': topic_distribution,
             'daily_activity': daily_activity
         }
+        
+    def delete_history_entry(self, entry_id, user_id=None):
+        """
+        Șterge o intrare din istoricul predicțiilor
+        
+        Args:
+            entry_id: ID-ul MongoDB al intrării de șters
+            user_id: ID-ul utilizatorului (pentru verificare)
+            
+        Returns:
+            True dacă ștergerea a reușit, False în caz contrar
+        """
+        from bson.objectid import ObjectId
+        
+        try:
+            # Construiește query-ul de ștergere
+            query = {'_id': ObjectId(entry_id)}
+            
+            # Adaugă user_id în query dacă este specificat (pentru securitate)
+            if user_id:
+                query['user_id'] = user_id
+                
+            # Execută ștergerea
+            result = self.history_collection.delete_one(query)
+            
+            # Verifică dacă ștergerea a reușit
+            return result.deleted_count > 0
+        except Exception as e:
+            print(f"Eroare la ștergerea intrării din istoric: {str(e)}")
+            return False
     
     def store_training_data(self, links, topics, documents, lda, vectorizer):
         """

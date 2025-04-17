@@ -32,7 +32,8 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { getHistory, retrainModel } from '../../services/api';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getHistory, retrainModel, deleteHistoryEntry } from '../../services/api';
 import './History.css';
 
 const History = ({ userId }) => {
@@ -48,6 +49,8 @@ const History = ({ userId }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState(null);
 
   useEffect(() => {
     fetchHistory();
@@ -143,6 +146,36 @@ const History = ({ userId }) => {
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
+  };
+
+  const handleOpenDeleteDialog = (entry) => {
+    setEntryToDelete(entry);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setEntryToDelete(null);
+  };
+
+  const handleDeleteEntry = async () => {
+    if (!entryToDelete) return;
+    
+    try {
+      const result = await deleteHistoryEntry(entryToDelete._id, userId);
+      if (result.success) {
+        showSnackbar('Intrarea a fost ștearsă cu succes', 'success');
+        // Actualizează lista de istoric după ștergere
+        fetchHistory();
+      } else {
+        showSnackbar(result.message || 'Eroare la ștergerea intrării', 'error');
+      }
+    } catch (err) {
+      console.error('Error deleting history entry:', err);
+      showSnackbar('Nu s-a putut șterge intrarea. Vă rugăm să încercați mai târziu.', 'error');
+    } finally {
+      handleCloseDeleteDialog();
+    }
   };
 
   const filteredHistory = history.filter(item => 
@@ -296,15 +329,26 @@ const History = ({ userId }) => {
                           </TableCell>
                           <TableCell>{formatDate(item.timestamp)}</TableCell>
                           <TableCell>
-                            <Tooltip title="Deschide URL">
-                              <IconButton 
-                                size="small" 
-                                color="primary"
-                                onClick={() => window.open(item.url, '_blank')}
-                              >
-                                <OpenInNewIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Tooltip title="Deschide URL">
+                                <IconButton 
+                                  size="small" 
+                                  color="primary"
+                                  onClick={() => window.open(item.url, '_blank')}
+                                >
+                                  <OpenInNewIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Șterge intrare">
+                                <IconButton 
+                                  size="small" 
+                                  color="error"
+                                  onClick={() => handleOpenDeleteDialog(item)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -327,19 +371,11 @@ const History = ({ userId }) => {
       </Card>
 
       {/* Retrain Model Dialog */}
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        aria-labelledby="retrain-dialog-title"
-      >
-        <DialogTitle id="retrain-dialog-title">
-          Retrain Model
-        </DialogTitle>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>Reantrenare Model</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Sunteți pe cale să reantrenați modelul de predicție a topicurilor folosind {selectedUrls.length} URL-uri selectate. 
-            Acest lucru va îmbunătăți acuratețea predicțiilor pentru conținut similar în viitor.
-            Doriți să continuați?
+            Sunteți sigur că doriți să reantrenați modelul cu {selectedUrls.length} URL-uri selectate? Acest proces poate dura câteva minute.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -351,9 +387,46 @@ const History = ({ userId }) => {
             color="primary" 
             variant="contained"
             disabled={retrainingLoading}
-            startIcon={retrainingLoading ? <CircularProgress size={20} /> : null}
+            startIcon={retrainingLoading && <CircularProgress size={20} />}
           >
-            {retrainingLoading ? 'Se reantrenează...' : 'Reantrenează'}
+            {retrainingLoading ? 'Se procesează...' : 'Reantrenează'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Confirmare ștergere</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Sunteți sigur că doriți să ștergeți această intrare din istoric? Această acțiune nu poate fi anulată.
+            {entryToDelete && (
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid rgba(0, 0, 0, 0.12)' }}>
+                <Typography variant="subtitle2" gutterBottom>URL:</Typography>
+                <Typography variant="body2" sx={{ wordBreak: 'break-all', mb: 1 }}>
+                  {entryToDelete.url}
+                </Typography>
+                <Typography variant="subtitle2" gutterBottom>Topic:</Typography>
+                <Chip 
+                  label={entryToDelete.prediction} 
+                  color="primary" 
+                  variant="outlined"
+                  size="small"
+                  sx={{ mb: 1 }}
+                />
+              </Box>
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Anulează
+          </Button>
+          <Button 
+            onClick={handleDeleteEntry} 
+            color="error" 
+            variant="contained"
+          >
+            Șterge
           </Button>
         </DialogActions>
       </Dialog>

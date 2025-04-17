@@ -117,6 +117,28 @@ def get_history():
     history = db.get_history(user_id, limit)
     return jsonify(history), 200
 
+
+@app.route('/history/<entry_id>', methods=['DELETE'])
+@cross_origin()
+def delete_history_entry(entry_id):
+    """
+    Șterge o intrare din istoricul predicțiilor
+    """
+    user_id = request.args.get('user_id')
+
+    if not entry_id:
+        return jsonify({"error": "ID-ul intrării nu a fost specificat"}), 400
+
+    try:
+        success = db.delete_history_entry(entry_id, user_id)
+        if success:
+            return jsonify({"success": True, "message": "Intrarea a fost ștearsă cu succes"}), 200
+        else:
+            return jsonify({"success": False, "message": "Intrarea nu a fost găsită sau nu poate fi ștearsă"}), 404
+    except Exception as e:
+        app.logger.error(f"Eroare la ștergerea intrării: {str(e)}")
+        return jsonify({"success": False, "message": f"Eroare la ștergerea intrării: {str(e)}"}), 500
+
 @app.route('/analytics', methods=['GET'])
 @cross_origin()
 def get_analytics():
@@ -152,6 +174,7 @@ def retrain_model_route():
     except Exception as e:
         app.logger.error(f"Error in retrain_model: {str(e)}")
         return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=False)
