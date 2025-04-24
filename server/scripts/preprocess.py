@@ -26,7 +26,7 @@ def preprocess_text(text):
     Returns:
         Textul procesat, filtrat și lemmatizat
     """
-    stop_words = set(stopwords.words('english')).union(set(additional_stopwords))
+    stop_words = set(stopwords.words('english')).union(set(additional_stopwords)) # Combină stopwords din NLTK cu lista personalizată
 
     # Elimină caracterele non-alfabetice
     text = re.sub(r'[^a-zA-Z\s]', '', text)

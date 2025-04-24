@@ -43,7 +43,7 @@ class Database:
         if cached_result:
             # Verifică dacă cache-ul este încă valid (24 ore)
             cache_time = cached_result.get('timestamp', datetime.datetime.min)
-            if (datetime.datetime.now() - cache_time).total_seconds() < 86400:  # 24 hours in seconds
+            if (datetime.datetime.now() - cache_time).total_seconds() < 86400:  # 24 de ore în secunde
                 return cached_result
         return None
     
@@ -122,16 +122,21 @@ class Database:
     
     def get_analytics(self, user_id=None, days=7):
         """
-        Get analytics
+        Obține date analitice
         
         Args:
-            user_id: User ID
-            days: Number of days to include
+            user_id: ID-ul utilizatorului
+            days: Numărul de zile de inclus
             
         Returns:
-            Dictionary with analytics data
+            Dicționar cu date analitice
         """
-        query = {}
+        # Definim pipeline-ul de bază pentru agregare
+        pipeline = []
+        
+        # Adăugăm filtru pentru perioada de timp (ultimele X zile)
+        date_limit = datetime.datetime.now() - datetime.timedelta(days=days)
+        pipeline.append({'$match': {'timestamp': {'$gte': date_limit}}})
         
         # Filtrare după user_id dacă este specificat
         if user_id:

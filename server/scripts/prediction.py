@@ -30,7 +30,7 @@ def predict_topic(url, user_id=None):
     if not url:
         return {"error": "Nu a fost furnizat niciun URL"}, 400
 
-    # Check cache first
+    # Verifică mai întâi cache-ul
     cached_result = db.check_cache(url)
     if cached_result:
         # Salvează în istoric pentru urmărire
@@ -59,10 +59,10 @@ def predict_topic(url, user_id=None):
         # Extrage frecvențele cuvintelor pentru norul de cuvinte
         word_frequencies = extract_word_frequencies(text)
         
-        # Save to cache
+        # Salvează în cache
         db.save_to_cache(url, text, prediction, word_frequencies)
         
-        # Save to history
+        # Salvează în istoric
         db.save_to_history(url, text, prediction, user_id)
 
         return {
@@ -119,13 +119,13 @@ def batch_predict(urls, user_id=None):
                 text_vectorized = vectorizer.transform([text])
                 prediction = model.predict(text_vectorized)[0]
                 
-                # Extract word frequencies
+                # Extrage frecvențele cuvintelor
                 word_frequencies = extract_word_frequencies(text)
                 
-                # Save to cache
+                # Salvează în cache
                 db.save_to_cache(url, text, prediction, word_frequencies)
                 
-                # Save to history
+                # Salvează în istoric
                 db.save_to_history(url, text, prediction, user_id, batch_id)
                 
                 results.append({
