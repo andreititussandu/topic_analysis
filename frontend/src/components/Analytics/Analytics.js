@@ -100,10 +100,10 @@ const Analytics = ({ userId }) => {
             </Alert>
           ) : (
             <Grid container spacing={4}>
-              {/* Topic Distribution */}
+              {/* Distributie teme principale */}
               <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom>
-                  Distribuția Topicurilor
+                  Distribuția Temelor Principale
                 </Typography>
                 <Box sx={{ height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -134,7 +134,7 @@ const Analytics = ({ userId }) => {
                 </Box>
               </Grid>
               
-              {/* Daily Activity */}
+              {/* Activitate zilnica */}
               <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom>
                   Activitate Zilnică (Ultimele 7 Zile)

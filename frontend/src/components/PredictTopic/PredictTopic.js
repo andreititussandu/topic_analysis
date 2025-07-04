@@ -62,7 +62,7 @@ const PredictTopic = ({ userId }) => {
       setPredictedTopic(data.predicted_topic);
       setFromCache(data.from_cache || false);
       
-      // Transform word frequencies for the word cloud
+      // Transformarea cuvintelor frecvente in word cloud
       if (data.word_frequencies) {
         const words = Object.entries(data.word_frequencies).map(([text, value]) => ({
           text,
@@ -118,7 +118,6 @@ const PredictTopic = ({ userId }) => {
     setSnackbarOpen(false);
   };
 
-  // Word cloud options
   const options = {
     colors: ['#3f51b5', '#757de8', '#002984', '#f50057', '#ff4081', '#c51162'],
     enableTooltip: true,

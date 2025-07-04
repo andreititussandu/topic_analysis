@@ -1,6 +1,3 @@
-"""
-Utilități de gestionare a conținutului pentru aplicația de analiză a topicurilor
-"""
 import os
 import logging
 from .web_scraper import scrape_text_from_url
@@ -14,16 +11,6 @@ logger = logging.getLogger(__name__)
 db = Database()
 
 def save_content(url, user_id=None):
-    """
-    Salvează conținutul de la un URL în fișier
-    
-    Args:
-        url: URL-ul de la care se salvează conținutul
-        user_id: ID-ul utilizatorului
-        
-    Returns:
-        Dicționar cu rezultatul salvării
-    """
     if not url:
         return {"error": "Nu a fost furnizat niciun URL"}, 400
     
@@ -43,8 +30,7 @@ def save_content(url, user_id=None):
         
         filename = f"{filename}.txt"
         filepath = f"saved_content/{filename}"
-        
-        # Asigură-te că directorul există
+
         os.makedirs('saved_content', exist_ok=True)
         
         # Salvează conținutul în fișier
@@ -62,21 +48,10 @@ def save_content(url, user_id=None):
         return {"error": f"Error saving content: {str(e)}"}, 500
 
 def get_file_path(filename):
-    """
-    Get safe file path for download
-    
-    Args:
-        filename: Filename to get path for
-        
-    Returns:
-        Tuple of (file_path, error_message, status_code)
-    """
     try:
-        # Ensure the filename is safe
         safe_filename = os.path.basename(filename)
         filepath = os.path.join('saved_content', safe_filename)
-        
-        # Check if file exists
+
         if not os.path.exists(filepath):
             return None, "File not found", 404
             

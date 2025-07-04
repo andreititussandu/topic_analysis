@@ -1,6 +1,3 @@
-"""
-Utilități pentru antrenarea modelului în aplicația de analiză a topicurilor
-"""
 import pandas as pd
 import os
 import joblib
@@ -14,23 +11,12 @@ from sklearn.naive_bayes import MultinomialNB
 from .web_scraper import scrape_text_from_url
 from .database import Database
 
-# Configurare logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Inițializare bază de date
 db = Database()
 
 def read_csv(file_path):
-    """
-    Citește fișier CSV
-    
-    Args:
-        file_path: Calea către fișierul CSV
-        
-    Returns:
-        Pandas DataFrame sau None
-    """
     try:
         df = pd.read_csv(file_path)
         logger.info("CSV citit cu succes")
@@ -40,16 +26,6 @@ def read_csv(file_path):
         return None
 
 def validate_columns(df, required_columns):
-    """
-    Validează coloanele necesare în DataFrame
-    
-    Args:
-        df: Pandas DataFrame
-        required_columns: Lista numelor coloanelor necesare
-        
-    Returns:
-        True dacă toate coloanele necesare există, False în caz contrar
-    """
     for column in required_columns:
         if column not in df.columns:
             logger.error(f"Eroare: Coloana necesară '{column}' nu a fost găsită în CSV")
@@ -57,15 +33,6 @@ def validate_columns(df, required_columns):
     return True
 
 def scrape_documents(links):
-    """
-    Extrage text din URL-uri
-    
-    Args:
-        links: Lista de URL-uri
-        
-    Returns:
-        Lista de documente text extrase
-    """
     documents = []
     for link in links:
         try:
@@ -78,57 +45,21 @@ def scrape_documents(links):
     return documents
 
 def vectorize_documents(documents):
-    """
-    Vectorizează documente
-    
-    Args:
-        documents: Lista de documente text
-        
-    Returns:
-        Tuplu de (vectorizer, matrice document-termen)
-    """
     vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english', ngram_range=(1, 2))
     dtm = vectorizer.fit_transform(documents)
     return vectorizer, dtm
 
 def apply_lda(dtm, n_components=7):
-    """
-    Aplică Latent Dirichlet Allocation
-    
-    Args:
-        dtm: Matricea document-termen
-        n_components: Numărul de topicuri
-        
-    Returns:
-        Modelul LDA
-    """
     lda = LatentDirichletAllocation(n_components=n_components, random_state=42)
     lda.fit(dtm)
     return lda
 
 def train_predictive_model(dtm, topics):
-    """
-    Antrenează modelul Naive Bayes
-    
-    Args:
-        dtm: Matricea document-termen
-        topics: Lista de topicuri
-        
-    Returns:
-        Modelul antrenat
-    """
     nb = MultinomialNB()
     nb.fit(dtm, topics)
     return nb
 
 def save_model_and_vectorizer(model, vectorizer):
-    """
-    Salvează modelul și vectorizatorul pe disc
-    
-    Args:
-        model: Modelul antrenat
-        vectorizer: CountVectorizer
-    """
     os.makedirs('database', exist_ok=True)
     with open('models/model.pkl', 'wb') as model_file:
         joblib.dump(model, model_file)
@@ -136,12 +67,6 @@ def save_model_and_vectorizer(model, vectorizer):
         joblib.dump(vectorizer, vectorizer_file)
 
 def process_csv(file_path):
-    """
-    Procesează fișierul CSV pentru antrenarea modelului
-    
-    Args:
-        file_path: Calea către fișierul CSV
-    """
     df = read_csv(file_path)
     if df is None or not validate_columns(df, ['topic', 'link']):
         raise ValueError("Format CSV invalid")
@@ -159,12 +84,7 @@ def process_csv(file_path):
     logger.info("CSV procesat și datele stocate în MongoDB")
 
 def backup_models():
-    """
-    Creează backup al modelelor curente
-    
-    Returns:
-        Timestamp-ul backup-ului sau None dacă backup-ul a eșuat
-    """
+    # Creează backup al modelelor curente - permite restaurarea
     backup_time = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     try:
         os.makedirs('database', exist_ok=True)
@@ -179,15 +99,6 @@ def backup_models():
         return None
 
 def restore_models(backup_time):
-    """
-    Restaurează modelele din backup
-    
-    Args:
-        backup_time: Timestamp-ul backup-ului
-        
-    Returns:
-        True dacă restaurarea a reușit, False în caz contrar
-    """
     try:
         if os.path.exists(f'database/vectorizer_{backup_time}.pkl') and os.path.exists(f'database/model_{backup_time}.pkl'):
             shutil.copy(f'database/vectorizer_{backup_time}.pkl', 'models/vectorizer.pkl')
@@ -199,22 +110,10 @@ def restore_models(backup_time):
     return False
 
 def retrain_model(urls, user_id):
-    """
-    Reantrenează modelul cu date noi
-    
-    Args:
-        urls: Lista de URL-uri pentru reantrenare
-        user_id: ID-ul utilizatorului
-        
-    Returns:
-        Tuplu de (succes, mesaj)
-    """
-    # Procesează fiecare URL pentru a obține conținutul
     contents = []
     topics = []
     
     for url in urls:
-        # Verifică dacă avem acest URL în istoric cu o predicție
         history_entry = db.history_collection.find_one({"url": url, "user_id": user_id})
         if not history_entry:
             continue
@@ -226,7 +125,6 @@ def retrain_model(urls, user_id):
         else:
             try:
                 content = scrape_text_from_url(url)
-                # Salvează în cache pentru utilizare ulterioară
                 db.save_to_cache(url, content, history_entry.get('prediction', ''))
             except Exception as e:
                 logger.error(f"Eroare la extragerea URL-ului {url}: {str(e)}")
@@ -238,8 +136,7 @@ def retrain_model(urls, user_id):
     
     if not contents:
         return False, "Nu s-a putut recupera conținut din niciunul dintre URL-urile furnizate"
-    
-    # Creează backup al modelului curent
+
     backup_time = backup_models()
     
     try:
@@ -250,7 +147,7 @@ def retrain_model(urls, user_id):
 
         all_classes = model.classes_
         
-        # Reantrenează clasificatorul cu noile date, folosind toate topicurile cunoscute
+        # Reantrenează clasificatorul cu noile date
         model.partial_fit(X, topics, classes=all_classes)
 
         joblib.dump(vectorizer, 'models/vectorizer.pkl')
@@ -259,8 +156,6 @@ def retrain_model(urls, user_id):
         return True, f"Model reantrenat cu succes cu {len(contents)} documente"
     except Exception as e:
         logger.error(f"Eroare la reantrenarea modelului: {str(e)}")
-        
-        # Restaurează din backup dacă este disponibil
         if backup_time and restore_models(backup_time):
             return False, f"Eroare la reantrenarea modelului: {str(e)} (restaurat din backup)"
         else:

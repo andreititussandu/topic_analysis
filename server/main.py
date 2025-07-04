@@ -11,15 +11,11 @@ from server.scripts.content_management import save_content, get_file_path
 # Import configurație server
 from server.web_server import app
 
-# Inițializare bază de date
 db = Database()
 
 @app.route('/upload_csv', methods=['POST'])
 @cross_origin()
 def upload_csv():
-    """
-    Încarcă fișier CSV pentru antrenarea modelului
-    """
     if 'file' not in request.files:
         return jsonify({"error": "Nu există partea de fișier în cerere"}), 400
 
@@ -42,9 +38,6 @@ def upload_csv():
 @app.route('/predict', methods=['POST'])
 @cross_origin()
 def predict():
-    """
-    Prezice topicul pentru un URL
-    """
     url = request.json.get('url')
     user_id = request.json.get('user_id')
     
@@ -54,9 +47,6 @@ def predict():
 @app.route('/batch_predict', methods=['POST'])
 @cross_origin()
 def batch_predict_route():
-    """
-    Prezice topicuri pentru mai multe URL-uri
-    """
     if 'file' not in request.files:
         return jsonify({"error": "Nu există partea de fișier în cerere"}), 400
 
@@ -68,7 +58,6 @@ def batch_predict_route():
 
     if file:
         try:
-            # Citește URL-urile din fișierul text
             content = file.read().decode('utf-8')
             urls = [url.strip() for url in content.split('\n') if url.strip()]
             
@@ -83,9 +72,6 @@ def batch_predict_route():
 @app.route('/save_content', methods=['POST'])
 @cross_origin()
 def save_content_route():
-    """
-    Salvează conținutul din URL în fișier
-    """
     url = request.json.get('url')
     user_id = request.json.get('user_id')
     
@@ -95,9 +81,6 @@ def save_content_route():
 @app.route('/download_content/<path:filename>', methods=['GET'])
 @cross_origin()
 def download_content(filename):
-    """
-    Descarcă conținutul salvat
-    """
     filepath, error, status_code = get_file_path(filename)
     
     if error:
@@ -108,9 +91,6 @@ def download_content(filename):
 @app.route('/history', methods=['GET'])
 @cross_origin()
 def get_history():
-    """
-    Obține istoricul predicțiilor utilizatorului
-    """
     user_id = request.args.get('user_id')
     limit = int(request.args.get('limit', 50))
     
@@ -121,9 +101,6 @@ def get_history():
 @app.route('/history/<entry_id>', methods=['DELETE'])
 @cross_origin()
 def delete_history_entry(entry_id):
-    """
-    Șterge o intrare din istoricul predicțiilor
-    """
     user_id = request.args.get('user_id')
 
     if not entry_id:
@@ -142,9 +119,6 @@ def delete_history_entry(entry_id):
 @app.route('/analytics', methods=['GET'])
 @cross_origin()
 def get_analytics():
-    """
-    Obține date analitice
-    """
     user_id = request.args.get('user_id')
     days = int(request.args.get('days', 7))
     
@@ -154,9 +128,6 @@ def get_analytics():
 @app.route('/retrain_model', methods=['POST'])
 @cross_origin()
 def retrain_model_route():
-    """
-    Reantrenează modelul de predicție a topicurilor folosind URL-urile selectate din istoric
-    """
     try:
         data = request.json
         urls = data.get('urls', [])
@@ -164,8 +135,7 @@ def retrain_model_route():
         
         if not urls:
             return jsonify({"success": False, "message": "Nu au fost furnizate URL-uri pentru reantrenare"}), 400
-        
-        # Înregistrează cererea de reantrenare
+
         app.logger.info(f"Reantrenarea modelului cu {len(urls)} URL-uri pentru utilizatorul {user_id}")
         
         success, message = retrain_model(urls, user_id)
@@ -178,6 +148,3 @@ def retrain_model_route():
 
 if __name__ == '__main__':
     app.run(debug=False)
-
-# backend - gunicorn -c gunicorn_config.py server.main:app
-# frontend - npm start

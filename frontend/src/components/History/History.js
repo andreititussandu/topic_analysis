@@ -370,7 +370,7 @@ const History = ({ userId }) => {
         </CardContent>
       </Card>
 
-      {/* Retrain Model Dialog */}
+      {/* Reantrenare model */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Reantrenare Model</DialogTitle>
         <DialogContent>
@@ -431,7 +431,7 @@ const History = ({ userId }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for notifications */}
+      {/* Notificari */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

@@ -33,7 +33,7 @@ const Header = () => {
                 flexGrow: 1
               }}
             >
-              Topic Analyzer
+              Analiza teme principale
             </Typography>
           </Box>
         </Toolbar>

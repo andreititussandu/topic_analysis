@@ -1,6 +1,3 @@
-"""
-Utilități de predicție pentru aplicația de analiză a topicurilor
-"""
 import logging
 import uuid
 import joblib
@@ -9,31 +6,17 @@ from .web_scraper import scrape_text_from_url
 from .database import Database
 from .text_processing import extract_word_frequencies
 
-# Configurare logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Inițializare bază de date
 db = Database()
 
 def predict_topic(url, user_id=None):
-    """
-    Prezice topicul pentru un URL
-    
-    Args:
-        url: URL-ul pentru care se face predicția
-        user_id: ID-ul utilizatorului
-        
-    Returns:
-        Dicționar cu rezultatele predicției
-    """
     if not url:
         return {"error": "Nu a fost furnizat niciun URL"}, 400
 
-    # Verifică mai întâi cache-ul
     cached_result = db.check_cache(url)
     if cached_result:
-        # Salvează în istoric pentru urmărire
         db.save_to_history(url, cached_result.get('text', ''), cached_result.get('prediction', ''), user_id)
         return {
             'predicted_topic': cached_result.get('prediction', ''),
@@ -55,14 +38,10 @@ def predict_topic(url, user_id=None):
 
         text_vectorized = vectorizer.transform([text])
         prediction = model.predict(text_vectorized)[0]
-        
-        # Extrage frecvențele cuvintelor pentru norul de cuvinte
+
         word_frequencies = extract_word_frequencies(text)
-        
-        # Salvează în cache
+
         db.save_to_cache(url, text, prediction, word_frequencies)
-        
-        # Salvează în istoric
         db.save_to_history(url, text, prediction, user_id)
 
         return {
@@ -75,29 +54,18 @@ def predict_topic(url, user_id=None):
         return {"error": f"Eroare la predicția topicului: {e}"}, 500
 
 def batch_predict(urls, user_id=None):
-    """
-    Prezice topicuri pentru multiple URL-uri
-    
-    Args:
-        urls: Lista de URL-uri pentru care se fac predicții
-        user_id: ID-ul utilizatorului
-        
-    Returns:
-        Dicționar cu rezultatele predicțiilor în lot
-    """
     if not urls:
         return {"error": "Nu au fost furnizate URL-uri"}, 400
     
     try:
-        # Generează un ID de lot pentru grupare
+        # Se generează un ID de lot
         batch_id = str(uuid.uuid4())
         
         results = []
         for url in urls:
             if not url:
                 continue
-                
-            # Verifică mai întâi cache-ul
+
             cached_result = db.check_cache(url)
             if cached_result:
                 results.append({
@@ -118,14 +86,10 @@ def batch_predict(urls, user_id=None):
                 
                 text_vectorized = vectorizer.transform([text])
                 prediction = model.predict(text_vectorized)[0]
-                
-                # Extrage frecvențele cuvintelor
+
                 word_frequencies = extract_word_frequencies(text)
-                
-                # Salvează în cache
+
                 db.save_to_cache(url, text, prediction, word_frequencies)
-                
-                # Salvează în istoric
                 db.save_to_history(url, text, prediction, user_id, batch_id)
                 
                 results.append({
@@ -139,8 +103,7 @@ def batch_predict(urls, user_id=None):
                     'url': url,
                     'error': str(e)
                 })
-        
-        # Group results by topic
+
         grouped_results = {}
         for result in results:
             if 'error' in result:

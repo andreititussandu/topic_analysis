@@ -1,22 +1,9 @@
-"""
-Utilități pentru extragerea textului din pagini web pentru aplicația de analiză a topicurilor
-"""
 import requests
 from requests.exceptions import Timeout
 from bs4 import BeautifulSoup
 from .preprocess import preprocess_text
 
 def scrape_text_from_url(url, timeout = 60):
-    """
-    Extrage textul dintr-un URL
-    
-    Args:
-        url: URL-ul de la care se extrage textul
-        timeout: Timpul maxim de așteptare în secunde
-        
-    Returns:
-        Textul prelucrat extras din URL
-    """
     try:
         response = requests.get(url, timeout=timeout)
         soup = BeautifulSoup(response.content, 'html.parser')

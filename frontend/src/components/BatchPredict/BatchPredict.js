@@ -87,7 +87,7 @@ const BatchPredict = ({ userId }) => {
           <Card>
             <CardContent>
               <Typography variant="h4" component="h2" gutterBottom>
-                Predicție în Lot a Topicurilor
+                Predicție în Lot a Temelor Principale
               </Typography>
               
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
