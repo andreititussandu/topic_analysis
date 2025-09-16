@@ -29,9 +29,15 @@ def save_content(url, user_id=None):
             filename = filename[:100]
         
         filename = f"{filename}.txt"
-        filepath = f"saved_content/{filename}"
+        
+        # Get the project root directory (go up two levels from current script location)
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        save_dir = os.path.join(project_root, 'saved_content')
+        filepath = os.path.join(save_dir, filename)
 
-        os.makedirs('saved_content', exist_ok=True)
+        os.makedirs(save_dir, exist_ok=True)
+        
+        logger.info(f"Content saved to: {filepath}")
         
         # Salvează conținutul în fișier
         with open(filepath, 'w', encoding='utf-8') as f:
@@ -50,7 +56,9 @@ def save_content(url, user_id=None):
 def get_file_path(filename):
     try:
         safe_filename = os.path.basename(filename)
-        filepath = os.path.join('saved_content', safe_filename)
+        # Get the project root directory (go up two levels from current script location)
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        filepath = os.path.join(project_root, 'saved_content', safe_filename)
 
         if not os.path.exists(filepath):
             return None, "File not found", 404
