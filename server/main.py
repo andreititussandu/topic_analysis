@@ -2,13 +2,11 @@ from flask import request, jsonify, send_file
 from flask_cors import cross_origin
 import os
 
-# Import din modulele scripts
 from server.scripts.database import Database
 from server.scripts.prediction import predict_topic, batch_predict
 from server.scripts.model_training import process_csv, retrain_model
 from server.scripts.content_management import save_content, get_file_path
 
-# Import configurație server
 from server.web_server import app
 
 db = Database()

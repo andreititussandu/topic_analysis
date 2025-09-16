@@ -33,7 +33,7 @@ const Header = () => {
                 flexGrow: 1
               }}
             >
-              Analiza teme principale
+              Detectarea tematicii în paginile web
             </Typography>
           </Box>
         </Toolbar>
